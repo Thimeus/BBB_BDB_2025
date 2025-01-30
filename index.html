@@ -3,316 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Betriebsdatenbank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Berufliche Bildung Bremerhaven</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            /* Wichtig: Padding-top hinzufügen, um den fixed header zu berücksichtigen */
-            padding-top: 90px;
+            background-color: #f4f4f9;
+            /* Padding hinzufügen um den fixed header zu berücksichtigen */
+            padding-top: 140px;
         }
-        header {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 20px 0;
+
+        .header {
+            background-color: white;
+            padding: 20px;
             text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             /* Fixierte Position hinzufügen */
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        header img {
-            height: 50px;
-            margin-right: 20px;
+
+        .header img {
+            height: 80px;
         }
-        header h1 {
-            margin: 0;
-        }
+
         .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            /* Position relativ zum fixed header */
-            position: relative;
-        }
-        .filter-bar {
-            background-color: #e0e0e0;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
             display: flex;
-            gap: 10px;
-            justify-content: flex-start;
-            position: sticky;
-            top: 90px; /* Abstand zum fixierten Header */
-            z-index: 900;
-        }
-        .filter-bar select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        .filter-bar button {
-            padding: 8px 15px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 1em;
-        }
-        .filter-bar button:hover {
-            background-color: #2980b9;
-        }
-        .company-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .company-card {
-            background-color: #fff;
             padding: 20px;
+            gap: 30px;
+        }
+
+        .menu {
+            width: 35%;
+        }
+
+        .menu button {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: none;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 5px 5px 10px #d9d9d9,
+                       -5px -5px 10px #ffffff;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
+            color: #444;
         }
-        .company-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+        .menu button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow: 7px 7px 14px #d1d1d1,
+                       -7px -7px 14px #ffffff;
+            color: #000;
         }
-        .company-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
+
+        .menu button:active {
+            transform: translateY(1px);
+            box-shadow: inset 4px 4px 8px #d9d9d9,
+                       inset -4px -4px 8px #ffffff;
         }
-        .company-card p {
-            margin: 5px 0;
-            line-height: 1.4;
+
+        .content {
+            width: 65%;
         }
-        .company-card p strong {
-            font-weight: bold;
-            color: #34495e;
+
+        .content img {
+            max-width: 80%;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: block;
+            margin: 0 auto;
         }
+
         .modal {
             display: none;
             position: fixed;
-            z-index: 1100; /* Höher als der Header */
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.7);
         }
+
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
             position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            width: 80%;
+            max-height: 80vh;
+            border-radius: 15px;
+            overflow: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        .close-button {
-            color: #aaa;
+
+        .close {
             position: absolute;
+            right: 20px;
             top: 10px;
-            right: 10px;
             font-size: 28px;
-            font-weight: bold;
             cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
         }
-        .modal-content p {
-            margin: 10px 0;
-            line-height: 1.6;
+
+        .close:hover {
+            color: #000;
         }
-        .modal-content p strong {
-            font-weight: bold;
-            color: #34495e;
+
+        .modal-content img,
+        .modal-content embed {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
         }
-        .loading {
+
+        .footer {
             text-align: center;
             padding: 20px;
-            font-size: 1.2em;
             color: #666;
         }
-        .error {
-            color: #e74c3c;
-            text-align: center;
-            padding: 20px;
-        }
+
         @media (max-width: 768px) {
             body {
-                padding-top: 80px; /* Angepasstes padding für mobile Ansicht */
+                padding-top: 120px; /* Angepasstes Padding für mobile Ansicht */
             }
             .container {
-                padding: 10px;
-                margin: 10px;
-            }
-            .filter-bar {
                 flex-direction: column;
-                align-items: stretch;
-                gap: 5px;
-                top: 80px;
             }
-            .company-list {
-                grid-template-columns: 1fr;
+            .menu, .content {
+                width: 100%;
             }
-            .modal-content {
-                width: 90%;
-                margin: 20% auto;
-                padding: 15px;
+            .header img {
+                height: 60px;
             }
-            header h1 {
-                font-size: 1.5em;
-            }
-            header img {
-                height: 40px;
+            .content img {
+                max-width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <img src="logo_bbb_1.png" alt="Firmenlogo" onerror="this.src='https://raw.githubusercontent.com/Thimeus/BBB/main/logo_bbb_1.png'">
-        <h1>Betriebsdatenbank</h1>
-    </header>
-    <div class="container">
-        <div class="filter-bar">
-            <select id="gewerk-filter">
-                <option value="all">Alle Gewerke</option>
-            </select>
-            <button id="reset-filter-button">Filter zurücksetzen</button>
-        </div>
-        <div id="loading" class="loading">Lade Daten...</div>
-        <div id="error" class="error" style="display: none;"></div>
-        <div class="company-list" id="company-list"></div>
+    <div class="header">
+        <img src="https://raw.githubusercontent.com/Thimeus/BBB/main/logo_bbb_1.png" alt="BBB Logo">
+        <h1>Test / BBB-Infoboard</h1>
     </div>
 
-    <div id="company-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">×</span>
-            <div id="modal-content-data"></div>
+    <div class="container">
+        <div class="menu">
+            <button onclick="showModal('standorte')">Standorte</button>
+            <button onclick="showModal('projekte')">Projekte</button>
+            <button onclick="showModal('telefonliste')">Telefonliste anzeigen</button>
+            <button onclick="showModal('organigramm')">Organigramm</button>
+            <button onclick="showModal('leitbild')">Leitbild anzeigen</button>
+            <button onclick="openLink('https://padlet.com/ascheller_BBB/bersicht-zu-fortbildungen-juab6bexozb6cvhe')">Info zu Fortbildungen</button>
+            <button onclick="openLink('https://padlet.com/ascheller_BBB/beruflichen-bildung-bremerhaven-berufsorientierung-und-arbei-5z0m7jaeroxbsdub')">Padlet</button>
+            <button onclick="openLink('https://padlet.com/ascheller_BBB/bersicht-der-pk-protokolle-ts7n4nsju2wjy8mq')">PK-Protokolle</button>
+            <button onclick="openBetriebsdatenbank()">Betriebsdatenbank</button>
+            <button onclick="openLink('https://statistik.arbeitsagentur.de/DE/Navigation/Service/Veroeffentlichungskalender/Veroeffentlichungskalender-Nav.html')">Arbeitsmarkt-Daten</button>
+            <button onclick="openLink('https://thimeus.github.io/ausbildungsplaner/')">Ausbildungsplan</button>
         </div>
+
+        <div class="content">
+            <img src="https://raw.githubusercontent.com/Thimeus/BBB/main/BBB_HQ.png" alt="BBB Hauptquartier">
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 Berufliche Bildung Bremerhaven
     </div>
 
     <script>
-        const companyListDiv = document.getElementById('company-list');
-        const modal = document.getElementById('company-modal');
-        const modalContentData = document.getElementById('modal-content-data');
-        const closeButton = document.querySelector('.close-button');
-        const gewerkFilterSelect = document.getElementById('gewerk-filter');
-        const resetFilterButton = document.getElementById('reset-filter-button');
-        const loadingDiv = document.getElementById('loading');
-        const errorDiv = document.getElementById('error');
-        let allCompanies = [];
+         const modalContents = {
+            standorte: {
+                type: 'image',
+                src: 'https://cdn.jsdelivr.net/gh/Thimeus/BBB@main/Standorte.png'
+            },
+            projekte: {
+                type: 'image',
+                src: 'https://cdn.jsdelivr.net/gh/Thimeus/BBB@main/Projekte.png'
+            },
+            telefonliste: {
+                type: 'pdf',
+                src: 'https://cdn.jsdelivr.net/gh/Thimeus/BBB@main/BBB_Telefonliste%20Rev.2.pdf'
+            },
+            organigramm: {
+                type: 'image',
+                src: 'https://cdn.jsdelivr.net/gh/Thimeus/BBB@main/Organigramm.png'
+            },
+            leitbild: {
+                type: 'image',
+                src: 'https://cdn.jsdelivr.net/gh/Thimeus/BBB@main/Leitbild_Rev.3.png'
+            },
+        };
 
-        // Fetch data from the JSON file
-        fetch('https://raw.githubusercontent.com/Thimeus/BBB_BDB_2025/main/BDB_2025.json')
-            .then(response => response.json())
-            .then(data => {
-                allCompanies = data;
-                populateFilter(data);
-                renderCompanies(data);
-                loadingDiv.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                loadingDiv.style.display = 'none';
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = 'Fehler beim Laden der Daten. Bitte versuchen Sie es später erneut.';
-            });
+        function showModal(contentKey) {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modalContent');
+            const content = modalContents[contentKey];
 
-        function populateFilter(data) {
-            const uniqueGewerke = [...new Set(data.map(company => company.Gewerk))].sort();
-            gewerkFilterSelect.innerHTML = '<option value="all">Alle Gewerke</option>';
-            uniqueGewerke.forEach(gewerk => {
-                const option = document.createElement('option');
-                option.value = gewerk;
-                option.textContent = gewerk;
-                gewerkFilterSelect.appendChild(option);
-            });
-        }
-
-        function renderCompanies(companies) {
-            companyListDiv.innerHTML = '';
-
-            if (companies.length === 0) {
-                companyListDiv.innerHTML = '<p>Keine Unternehmen gefunden.</p>';
-                return;
+            if (content.type === 'image') {
+                modalContent.innerHTML = `<img src="${content.src}" alt="${contentKey}">`;
+            } else if (content.type === 'pdf') {
+                modalContent.innerHTML = `<embed src="${content.src}" width="100%" height="600px">`;
             }
 
-            companies.forEach(company => {
-                const companyCard = document.createElement('div');
-                companyCard.classList.add('company-card');
-                companyCard.innerHTML = `
-                    <h3>${company.Firmenname}</h3>
-                    <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
-                    <p><strong>Ort:</strong> ${company.Ort}</p>
-                `;
-                companyCard.addEventListener('click', () => showCompanyDetails(company));
-                companyListDiv.appendChild(companyCard);
-            });
+            modal.style.display = 'block';
         }
 
-        function showCompanyDetails(company) {
-            modalContentData.innerHTML = `
-                <h2>${company.Firmenname}</h2>
-                <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
-                <p><strong>ID:</strong> ${company.ID}</p>
-                <p><strong>Adresse:</strong> ${company.Straße}, ${company.PLZ} ${company.Ort}</p>
-                <p><strong>Ansprechpartner:</strong> ${company.Ansprechpartner || 'Nicht angegeben'}</p>
-                <p><strong>Telefon:</strong> ${company.Telefon || 'Nicht angegeben'}</p>
-                <p><strong>Branche:</strong> ${company.Branche || 'Nicht angegeben'}</p>
-                <p><strong>Arbeitsbereiche:</strong> ${company.Arbeitsbereiche || 'Nicht angegeben'}</p>
-                <p><strong>Letzter Praktikant:</strong> ${company['Letzter Prakt'] || 'Nicht angegeben'}</p>
-                <p><strong>Bemerkung:</strong> ${company.Bemerkung || 'Nicht angegeben'}</p>
-            `;
-            modal.style.display = "block";
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
         }
 
-        closeButton.addEventListener('click', () => {
-            modal.style.display = "none";
-        });
+        function openBetriebsdatenbank() {
+            const betriebsdatenbankURL = 'https://drive.google.com/file/d/1tNyIZj6in9-E-ZdsYp4JlKmUAeh8vI0T/preview';
+            window.open(betriebsdatenbankURL, '_blank');
+        }
 
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                modal.style.display = "none";
+        function openLink(url) {
+            window.open(url, '_blank');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target == modal) {
+                closeModal();
             }
-        });
-
-        gewerkFilterSelect.addEventListener('change', () => {
-            const selectedGewerk = gewerkFilterSelect.value;
-            if (selectedGewerk === 'all') {
-                renderCompanies(allCompanies);
-            } else {
-                const filteredCompanies = allCompanies.filter(company => company.Gewerk === selectedGewerk);
-                renderCompanies(filteredCompanies);
-            }
-        });
-
-        resetFilterButton.addEventListener('click', () => {
-            gewerkFilterSelect.value = 'all';
-            renderCompanies(allCompanies);
-        });
+        };
     </script>
 </body>
 </html>

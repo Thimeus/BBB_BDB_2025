@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="de">
-<!-- Head-Bereich bleibt unverändert ... -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Betriebsdatenbank</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Styles bleiben unverändert ... -->
+    <!-- Bisherige Styles bleiben unverändert ... -->
     <style>
         /* Alle bestehenden Styles bleiben gleich ... */
     </style>
 </head>
 <body>
-    <!-- Header und Container bleiben unverändert ... -->
     <header>
-        <img src="logo_bbb_1.png" alt="Firmenlogo" onerror="this.src='https://raw.githubusercontent.com/Thimeus/BBB/main/logo_bbb_1.png'">
+        <img src="https://raw.githubusercontent.com/Thimeus/BBB/main/logo_bbb_1.png" alt="Firmenlogo">
         <h1>Betriebsdatenbank</h1>
     </header>
     <div class="container">
@@ -48,45 +46,47 @@
         let allCompanies = [];
 
         async function fetchData() {
-            try {
-                loadingDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                companyListDiv.style.display = 'none';
+            const urls = [
+                './BDB_2025.json',  // Lokaler Pfad
+                'BDB_2025.json',    // Relativer Pfad
+                'https://thimeus.github.io/BBB_BDB_2025/BDB_2025.json',  // GitHub Pages URL
+                'https://raw.githubusercontent.com/Thimeus/BBB_BDB_2025/main/BDB_2025.json'  // Raw GitHub URL
+            ];
 
-                // Versuche zuerst die lokale JSON-Datei zu laden
-                let response = await fetch('BDB_2025.json');
-                
-                // Wenn die lokale Datei nicht gefunden wurde, verwende die GitHub-URL
-                if (!response.ok) {
-                    response = await fetch('https://raw.githubusercontent.com/Thimeus/BBB_BDB_2025/main/BDB_2025.json');
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            companyListDiv.style.display = 'none';
+
+            for (const url of urls) {
+                try {
+                    console.log('Versuche zu laden von:', url);
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (Array.isArray(data)) {
+                            console.log('Erfolgreich geladen von:', url);
+                            allCompanies = data;
+                            populateFilter(data);
+                            renderCompanies(data);
+                            
+                            loadingDiv.style.display = 'none';
+                            companyListDiv.style.display = 'grid';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Fehler beim Laden von', url, ':', error);
                 }
-                
-                if (!response.ok) {
-                    throw new Error('Daten konnten nicht geladen werden');
-                }
-                
-                const data = await response.json();
-                
-                // Überprüfe, ob die Daten das erwartete Format haben
-                if (!Array.isArray(data)) {
-                    throw new Error('Unerwartetes Datenformat');
-                }
-                
-                allCompanies = data;
-                populateFilter(data);
-                renderCompanies(data);
-                
-                loadingDiv.style.display = 'none';
-                companyListDiv.style.display = 'grid';
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                loadingDiv.style.display = 'none';
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = 'Fehler beim Laden der Daten. Bitte versuchen Sie es später erneut. ' + error.message;
             }
+
+            // Wenn keine URL erfolgreich war
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'Fehler beim Laden der Daten. Bitte versuchen Sie es später erneut.';
         }
 
-        // Rest des Codes bleibt unverändert ...
+        // Restlicher Code bleibt unverändert ...
         function populateFilter(data) {
             const uniqueGewerke = [...new Set(data.map(company => company.Gewerk))].sort();
             gewerkFilterSelect.innerHTML = '<option value="all">Alle Gewerke</option>';

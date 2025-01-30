@@ -23,7 +23,7 @@
             align-items: center;
         }
         header img {
-            height: 50px; /* Höhe des Logos */
+            height: 50px;
             margin-right: 20px;
         }
         header h1 {
@@ -38,37 +38,34 @@
             border-radius: 8px;
         }
         .filter-bar {
-          display: flex;
-          gap: 10px;
-          padding: 10px;
-          background-color: #e0e0e0;
-          border-radius: 5px;
-          margin-bottom: 20px;
-          justify-content: flex-start;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            justify-content: flex-start;
         }
-      
         .filter-bar select {
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 1em;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
         }
-      
         .filter-bar button {
-          padding: 8px 15px;
-          background-color: #3498db;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-          font-size: 1em;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1em;
         }
-
-          .filter-bar button:hover {
-              background-color: #2980b9;
-          }
+        .filter-bar button:hover {
+            background-color: #2980b9;
+        }
         .company-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -95,10 +92,10 @@
             margin: 5px 0;
             line-height: 1.4;
         }
-         .company-card p strong {
+        .company-card p strong {
             font-weight: bold;
             color: #34495e;
-          }
+        }
         .modal {
             display: none;
             position: fixed;
@@ -129,153 +126,180 @@
             font-weight: bold;
             cursor: pointer;
         }
-         .modal-content p {
-          margin: 10px 0;
-          line-height: 1.6;
+        .modal-content p {
+            margin: 10px 0;
+            line-height: 1.6;
         }
-        
         .modal-content p strong {
-          font-weight: bold;
-          color: #34495e;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: #666;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
         }
         @media (max-width: 768px) {
-          .container {
-            padding: 10px;
-          }
-      
-          .filter-bar {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 5px;
-          }
-          .company-list {
-           grid-template-columns: 1fr;
-          }
-          .modal-content {
-            width: 90%;
-            margin: 20% auto;
-            padding: 15px;
+            .container {
+                padding: 10px;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+            .company-list {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                width: 90%;
+                margin: 20% auto;
+                padding: 15px;
+            }
         }
-      }
     </style>
 </head>
 <body>
     <header>
-        <img src="https://github.com/Thimeus/BBB/blob/main/logo_bbb_1.png?raw=true" alt="Firmenlogo">
+        <img src="logo_bbb_1.png" alt="Firmenlogo" onerror="this.src='https://raw.githubusercontent.com/Thimeus/BBB/main/logo_bbb_1.png'">
         <h1>Betriebsdatenbank</h1>
     </header>
     <div class="container">
-      <div class="filter-bar">
-        <select id="gewerk-filter">
-            <option value="all">Alle Gewerke</option>
-           </select>
-         <button id="reset-filter-button">Filter zurücksetzen</button>
+        <div class="filter-bar">
+            <select id="gewerk-filter">
+                <option value="all">Alle Gewerke</option>
+            </select>
+            <button id="reset-filter-button">Filter zurücksetzen</button>
         </div>
-        <div class="company-list" id="company-list">
-            </div>
+        <div id="loading" class="loading">Lade Daten...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div class="company-list" id="company-list"></div>
     </div>
 
     <div id="company-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">x</span>
-           <div id="modal-content-data"></div>
+            <span class="close-button">×</span>
+            <div id="modal-content-data"></div>
         </div>
     </div>
 
     <script>
-       const companyListDiv = document.getElementById('company-list');
-       const modal = document.getElementById('company-modal');
-       const modalContentData = document.getElementById('modal-content-data');
-       const closeButton = document.querySelector('.close-button');
-       const gewerkFilterSelect = document.getElementById('gewerk-filter');
-       const resetFilterButton = document.getElementById('reset-filter-button');
-       let allCompanies = []; // Store all companies here
-    
-     
-      // Fetch data from the JSON file
-      fetch('https://raw.githubusercontent.com/Thimeus/BBB_BDB_2025/main/BDB_2025.json')
-        .then(response => response.json())
-        .then(data => {
-          allCompanies = data; // Store all companies
-          populateFilter(data);
-          renderCompanies(data);
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    
-      function populateFilter(data){
-         const uniqueGewerke = [...new Set(data.map(company => company.Gewerk))];
-        uniqueGewerke.forEach(gewerk => {
-        const option = document.createElement('option');
-        option.value = gewerk;
-        option.textContent = gewerk;
-        gewerkFilterSelect.appendChild(option);
-    });
-  }
-      function renderCompanies(companies) {
-        companyListDiv.innerHTML = ''; // Clear previous results
-    
-        if (companies.length === 0) {
-          companyListDiv.innerHTML = '<p>Keine Unternehmen gefunden.</p>';
-          return;
+        const companyListDiv = document.getElementById('company-list');
+        const modal = document.getElementById('company-modal');
+        const modalContentData = document.getElementById('modal-content-data');
+        const closeButton = document.querySelector('.close-button');
+        const gewerkFilterSelect = document.getElementById('gewerk-filter');
+        const resetFilterButton = document.getElementById('reset-filter-button');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        let allCompanies = [];
+
+        async function fetchData() {
+            try {
+                loadingDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                companyListDiv.style.display = 'none';
+
+                const response = await fetch('BDB_2025.json');
+                if (!response.ok) {
+                    throw new Error('Daten konnten nicht geladen werden');
+                }
+                const data = await response.json();
+                allCompanies = data;
+                populateFilter(data);
+                renderCompanies(data);
+                
+                loadingDiv.style.display = 'none';
+                companyListDiv.style.display = 'grid';
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                loadingDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Fehler beim Laden der Daten. Bitte versuchen Sie es später erneut.';
+            }
         }
-        companies.forEach(company => {
-         const companyCard = document.createElement('div');
-         companyCard.classList.add('company-card');
-      
-         companyCard.innerHTML = `
-            <h3>${company.Firmenname}</h3>
-            <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
-            <p><strong>Ort:</strong> ${company.Ort}</p>
-        `;
-        companyCard.addEventListener('click', () => showCompanyDetails(company));
-      
-          companyListDiv.appendChild(companyCard);
-      });
-    }
-    
-      function showCompanyDetails(company) {
-         modalContentData.innerHTML = `
-            <h2>${company.Firmenname}</h2>
-           <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
-           <p><strong>ID:</strong> ${company.ID}</p>
-           <p><strong>Adresse:</strong> ${company.Straße}, ${company.PLZ} ${company.Ort}</p>
-          <p><strong>Ansprechpartner:</strong> ${company.Ansprechpartner || 'Nicht angegeben'}</p>
-          <p><strong>Telefon:</strong> ${company.Telefon || 'Nicht angegeben'}</p>
-          <p><strong>Branche:</strong> ${company.Branche || 'Nicht angegeben'}</p>
-           <p><strong>Arbeitsbereiche:</strong> ${company.Arbeitsbereiche || 'Nicht angegeben'}</p>
-          <p><strong>Letzter Praktikant:</strong> ${company['Letzter Prakt'] || 'Nicht angegeben'}</p>
-            <p><strong>Bemerkung:</strong> ${company.Bemerkung || 'Nicht angegeben'}</p>
-           `;
-       modal.style.display = "block";
-      }
-    
-    
-       closeButton.addEventListener('click', () => {
-        modal.style.display = "none";
-      });
-    
-    
-       window.addEventListener('click', (event) => {
-         if (event.target === modal) {
-         modal.style.display = "none";
-          }
+
+        function populateFilter(data) {
+            const uniqueGewerke = [...new Set(data.map(company => company.Gewerk))].sort();
+            gewerkFilterSelect.innerHTML = '<option value="all">Alle Gewerke</option>';
+            uniqueGewerke.forEach(gewerk => {
+                const option = document.createElement('option');
+                option.value = gewerk;
+                option.textContent = gewerk;
+                gewerkFilterSelect.appendChild(option);
+            });
+        }
+
+        function renderCompanies(companies) {
+            companyListDiv.innerHTML = '';
+
+            if (companies.length === 0) {
+                companyListDiv.innerHTML = '<p>Keine Unternehmen gefunden.</p>';
+                return;
+            }
+
+            companies.forEach(company => {
+                const companyCard = document.createElement('div');
+                companyCard.classList.add('company-card');
+                companyCard.innerHTML = `
+                    <h3>${company.Firmenname}</h3>
+                    <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
+                    <p><strong>Ort:</strong> ${company.Ort}</p>
+                `;
+                companyCard.addEventListener('click', () => showCompanyDetails(company));
+                companyListDiv.appendChild(companyCard);
+            });
+        }
+
+        function showCompanyDetails(company) {
+            modalContentData.innerHTML = `
+                <h2>${company.Firmenname}</h2>
+                <p><strong>Gewerk:</strong> ${company.Gewerk}</p>
+                <p><strong>ID:</strong> ${company.ID}</p>
+                <p><strong>Adresse:</strong> ${company.Straße}, ${company.PLZ} ${company.Ort}</p>
+                <p><strong>Ansprechpartner:</strong> ${company.Ansprechpartner || 'Nicht angegeben'}</p>
+                <p><strong>Telefon:</strong> ${company.Telefon || 'Nicht angegeben'}</p>
+                <p><strong>Branche:</strong> ${company.Branche || 'Nicht angegeben'}</p>
+                <p><strong>Arbeitsbereiche:</strong> ${company.Arbeitsbereiche || 'Nicht angegeben'}</p>
+                <p><strong>Letzter Praktikant:</strong> ${company['Letzter Prakt'] || 'Nicht angegeben'}</p>
+                <p><strong>Bemerkung:</strong> ${company.Bemerkung || 'Nicht angegeben'}</p>
+            `;
+            modal.style.display = "block";
+        }
+
+        closeButton.addEventListener('click', () => {
+            modal.style.display = "none";
         });
-     
-      gewerkFilterSelect.addEventListener('change', () => {
-        const selectedGewerk = gewerkFilterSelect.value;
-      
-        if (selectedGewerk === 'all') {
-           renderCompanies(allCompanies);
-         } else {
-           const filteredCompanies = allCompanies.filter(company => company.Gewerk === selectedGewerk);
-           renderCompanies(filteredCompanies);
-          }
-      });
-      
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        gewerkFilterSelect.addEventListener('change', () => {
+            const selectedGewerk = gewerkFilterSelect.value;
+            if (selectedGewerk === 'all') {
+                renderCompanies(allCompanies);
+            } else {
+                const filteredCompanies = allCompanies.filter(company => company.Gewerk === selectedGewerk);
+                renderCompanies(filteredCompanies);
+            }
+        });
+
         resetFilterButton.addEventListener('click', () => {
-           gewerkFilterSelect.value = 'all'; // Reset the select to 'All'
-           renderCompanies(allCompanies); // Render all companies
-         });
+            gewerkFilterSelect.value = 'all';
+            renderCompanies(allCompanies);
+        });
+
+        // Start loading data when page loads
+        fetchData();
     </script>
 </body>
 </html>
